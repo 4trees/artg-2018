@@ -130,8 +130,13 @@ d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
 		.rollup(leave => leave.length)
 		.entries(trips)
 	console.log(nestedByDepartureStationForTrips)
-	// const mappedTripsBystation = trips.map(d => {departure: d.station0, trips:})
 
+	let tripsBystation = []
+	const tripsBystationKeys = trips.map(d => d.station0).filter((d, i, v) => v.indexOf(d) === i)
+	tripsBystationKeys.forEach(d => {
+		tripsBystation.push({key:d,values:trips.filter(e => e.station0 == d).length})
+	})
+	console.log(tripsBystation)
 	/***
 	5.0 BONUS Question
 	Can you answer 2.1 and 2.2 without using d3's built-in max and min methods?
