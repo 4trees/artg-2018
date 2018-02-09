@@ -1,47 +1,58 @@
-# `fetch` and `Promise`
+# Week 3 Assignment 1 - Trip Activity by Time of the Day
 
-So far we've mostly been using `d3.csv` and `d3.json` to request local data resources. But what if we need to interact with data sources differently? With this assignment, we'll look at using `fetch` to request network resources, and introduce the concept of javascript `Promise`.
+With this assignment, you will build a visualization of Hubway activity levels by time of the day, using the `d3.histogram` layout module. First, if you don't know what is a histogram, please read up on it [here](https://en.wikipedia.org/wiki/Histogram). 
 
-## `fetch` basics
-As its name implies, `fetch` makes an request for and fetches some network resource (csv, json, or some other data source). The API is in fact relatively simple. To make a request:
-```js
-fetch(someUrl)
+![Histogram](./trip-activities.jpg?raw=true "trip activities")
+
+You are only asked to complete a small part of this task. However, **it is important that you understand what the rest of the code is trying to do.**
+
+## To start the project
+As a reminder, to fetch this project from the main coure repo, do this in console:
 ```
-Well, nothing happens, yet. But if you assign the return value of `fetch` to a constant and log it out, you'll see in the console that `fetch` returns a `Promise`.
-
-## Introduction to `Promise`
-So `fetch` returns a `Promise`, and a `Promise`, according to its API [...], is a container of a future value.
-
-It's ok if this doesn't make any sense yet, but think of it this way: acquiring data is an asynchronous process i.e. it takes time. When you first make a `fetch` request, it will not return the data right away, but will resolve the data sometime in the future. Think of the parallel process of importing data with `d3.csv`:
-```js
-d3.csv(someUrl, callback)
+git fetch upstream //upstream should refer to https://github.com/Siqister/artg-2018.git
+git checkout remotes/upstream/master 03-assignment-1
 ```
-where `callback` is a function that will be invoked when the csv data has been imported and parsed. There are many parallels between `fetch` and `d3.csv`. In fact, `fetch` is a fairly recently incorporated part of core javascript that standardizes the protocol for asynchronous network requests.
 
-### Accessing the Resolution Value of `Promise`
-So if a `Promise` object contains a future value (called the "resolution value"), how do we access it? With the `Promise.prototype.then` method:
+Navigate to `/03-assignment-1` folder, then run:
+```
+npm start
+```
+
+## In `parse.js`
+Note that this function now produces two additional data attributes per trip: `time_of_day_0` and `time_of_day_1`. Without even knowing the syntax of how `Date` objects work, you should be able to guess that these two attributes represent, in decimals, what time of the day this trip took place. For example, 23.5 == 11:30PM.
+
+## In `index.js`
+We are now trying to gather up all the logic of drawing the activity histogram into the `activityHistogram` function, and these include:
+- data transformation
+- Mining for maximum and minimum, and setting up scales
+- Creating axis generators
+- Building DOM
+
+Then, lines 26-28 calls the function. Note the use of `selection.datum()` instead of `selection.data()`. The former binds one element of datum to the selection (one to one), while the latter binds n elements of an array (many to many);
 ```js
-somePromise
-	.then(function(res){
-		console.log(res);
+plot
+	.datum(trips) //note: .datum(), not .data()
+	.each(activityHistogram);
+```
+
+### Data transformation with `d3.histogram`
+Can you look at this block of code and figure out what it is doing?
+```
+const histogram = d3.histogram()
+	.value(d => d.time_of_day0)
+	.thresholds(d3.range(0,24,.25));
+const tripsByQuarterHour = histogram(data)
+	.map(d => {
+		return {
+			x0:d.x0, //left bound of the bin; 18.25 => 18:15
+			x1:d.x1,
+			volume:d.length
+		}
 	});
 ```
-Try this out in part 3.1. If `fetch` returns a `Promise` object, what is its resolution value? Is it what you expected?
 
-### `somePromise.then()` is another `Promise`
-If you `return` some value "x" within the `.then` callback of a `Promise`, it becomes another `Promise` object that resolves to "x". What this means is that you can chain a number of `Promise` objects together, passing their resolution values down a pipeline and transforming it along the way.
-```js
-somePromise //resolves x1
-	.then(function(x1){
-		return x1 + 2;
-	}).then(function(x2){
-		return x2 * 3;
-	}).then(function(x3){
-		return x3 - 5;
-	}).then(function(res){
-		console.log(res);
-	});
-```
-You can observe this in action with 3.2.
+### Building DOM with enter-exit-update **Your code here**
+Lines 70-77 is your main task. Here, build out the histogram with `<rect>` elements.
 
-### Resolution value of `fetch`
+### Using the `d3.axis` generators
+Can you look up lines 80-102 and figure out what's happening?
