@@ -8,6 +8,7 @@ import Histogram from './Histogram';
 
 console.log('Week 4 exercise 2');
 
+
 //Create instances of this reusable module
 const activityHistogramMain = Histogram(5000);
 const activityHistogramMultiple = Histogram();

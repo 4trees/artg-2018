@@ -1,24 +1,27 @@
 import * as d3 from 'd3';
+import '../style/histogram.css';
 
-function Histogram(_) {
-    // console.log(this)
-    //Internal configuration variable
-    let maxVolume = _ || 300;
-    let margin = { t: 15, r: 25, b: 25, l: 25 };
-    let ticksY = 5;
-    let defaultColor = 'rgb(50,50,50)';
+function Historgram(_) {
 
-    function exports(data, i) {
-        console.log(this)
-        //"exports" == "activityHistogram"
+    let _thresholds;
+    let _domain;
+    let _value = () => {}; //function
+    let _tickX = 6;
+    let _tickY = 5;
+    let _tickXFormat = () => {};
+    let _maxY = -Infinity;
 
-        //Need to append a the proper DOM scaffolding
-        const width = this.clientWidth; //What is "this"?
-        const height = this.clientHeight;
+    function haha(data, i) {
+        const root = this;
+
+        const width = root.clientWidth;
+        const height = root.clientHeight;
+        const margin = { t: 20, r: 20, b: 20, l: 30 };
         const w = width - margin.l - margin.r;
         const h = height - margin.t - margin.b;
 
-        const svg = d3.select(this)
+        const svg = d3.select(root)
+            .classed('histogram', true)
             .selectAll('svg')
             .data([1]); //What's going on here?
         const svgEnter = svg.enter().append('svg')
@@ -33,9 +36,10 @@ function Histogram(_) {
         //Transform data
         //Group trips into discrete 15 minute bins, using the d3.histogram layout
         const histogram = d3.histogram()
-            .value(d => d.time_of_day0)
-            .thresholds(d3.range(0, 24, .25));
-        const tripsByQuarterHour = histogram(data.values)
+            .value(_value)
+            .thresholds(_thresholds)
+            .domain(_domain);
+        const tripsByQuarterHour = histogram(data)
             .map(d => {
                 return {
                     x0: d.x0, //left bound of the bin; 18.25 => 18:15
@@ -44,26 +48,23 @@ function Histogram(_) {
                 }
             });
 
+
+
         //Set up scales in the x and y direction
-        const scaleX = d3.scaleLinear().domain([0, 24]).range([0, w]);
-        //const maxVolume = d3.max(tripsByQuarterHour, d => d.volume);
-        const scaleY = d3.scaleLinear().domain([0, maxVolume]).range([h, 0]);
+        const scaleX = d3.scaleLinear().domain(_domain).range([0, w]);
+        const maxVolume = d3.max(tripsByQuarterHour, d => d.volume);
+        const scaleY = d3.scaleLinear().domain([0, Math.max(_maxY,maxVolume)]).range([h, 0]);
 
         //Set up axis generator
         const axisY = d3.axisLeft()
             .scale(scaleY)
             .tickSize(-w)
-            .ticks(ticksY);
+            .ticks(_tickY);
 
         const axisX = d3.axisBottom()
             .scale(scaleX)
-            .tickFormat(d => {
-                const time = +d;
-                const hour = Math.floor(time);
-                let min = Math.round((time - hour) * 60);
-                min = String(min).length === 1 ? "0" + min : min;
-                return `${hour}:${min}`
-            });
+            .ticks(_tickX)
+            .tickFormat(_tickXFormat);
 
         //Draw
         //Bars
@@ -89,7 +90,7 @@ function Histogram(_) {
             .attr('width', d => (scaleX(d.x1) - scaleX(d.x0)))
             .attr('y', d => scaleY(d.volume))
             .attr('height', d => (h - scaleY(d.volume)))
-            .style('fill', defaultColor);
+            .style('fill', 'rgba(0,0,0,.1)');
 
         //Exit
         binsUpdate.exit().remove();
@@ -100,7 +101,7 @@ function Histogram(_) {
             .data([1]);
         const axisXNodeEnter = axisXNode.enter()
             .append('g')
-            .attr('class', 'axis-x');
+            .attr('class', 'axis axis-x');
         axisXNode.merge(axisXNodeEnter)
             .attr('transform', `translate(0,${h})`)
             .call(axisX);
@@ -110,56 +111,53 @@ function Histogram(_) {
             .data([1]);
         const axisYNodeEnter = axisYNode.enter()
             .append('g')
-            .attr('class', 'axis-y');
+            .attr('class', 'axis axis-y');
         axisYNode.merge(axisYNodeEnter)
             .call(axisY);
-
-        axisYNodeEnter.select('.domain').style('display', 'none');
-        axisYNodeEnter.selectAll('line')
-            .style('stroke', 'rgb(80,80,80)')
-            .style('stroke-dasharray', '2px 2px');
+    };
+    haha.thresholds = function(_) {
+        // _ is an array of thresholds
+        // '_name' means internal setting - for human reading
+        if (typeof _ === 'undefined') return _thresholds;
+        _thresholds = _
+        return this
+    }
+    haha.domain = function(_) {
+        if (typeof _ === 'undefined') return _domain;
+        _domain = _
+        return this
+    }
+    haha.value = function(fn) {
+        if (typeof fn === 'undefined') return _value;
+        _value = fn
+        return this
+    }
+    haha.tickX = function(_) {
+        if (typeof _ === 'undefined') return _tickX;
+        _tickX = _
+        return this
+    }
+    haha.tickY = function(_) {
+        if (typeof _ === 'undefined') return _tickY;
+        _tickY = _
+        return this
+    }
+    haha.tickXFormat = function(fn) {
+        if (typeof fn === 'undefined') return _tickXFormat;
+        _tickXFormat = fn
+        return this
+    }
+    haha.maxY = function(_) {
+        if (typeof _ === 'undefined') return _maxY
+        _maxY = _
+        return this
     }
 
-    //Setter and getter functions
-    exports.width = function(_) {
-
-    }
-
-    exports.height = function(_) {
-
-    }
-
-    exports.margin = function(_) {
-        margin = _;
-        return this;
-    }
-
-    exports.value = function(fn) {
-
-    }
-
-    exports.domain = function(_) {
-
-    }
-
-    exports.maxVolume = function(_) {
-        maxVolume = _;
-        return this;
-    }
-
-    exports.ticksY = function(_) {
-        //
-        ticksY = _;
-        return this;
-    }
-
-    exports.defaultColor = function(_) {
-        defaultColor = _; //assuming _ is CSS color string
-        return this;
-    }
-
-    return exports;
-
+    return haha;
 }
 
-export default Histogram;
+// function histogram(data,i){
+
+// }
+
+export default Historgram;

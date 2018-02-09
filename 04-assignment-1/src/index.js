@@ -4,11 +4,12 @@ import * as d3 from 'd3';
 import './style.css';
 
 import parse from './parse';
-import timeline from './Timeline';
+import Timeline from './Timeline';
 
 console.log('Week 4 exercise 2');
 
-
+const timeline = Timeline().maxVolume(10).timeInterval(d3.timeDay)
+console.log(timeline)
 //Import and parse data
 d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
 
