@@ -21,7 +21,8 @@ const somePromise = new Promise(function(resolve, reject){
 	//Code here will run immediately
 	//How do we change the "resolved" value?
 	/*** YOUR CODE HERE ***/
-	resolve(5);
+	// resolve(5);
+	reject(new Error('some'))
 	/*** YOUR CODE HERE ***/
 
 }); //Note that this Promise will resolve a value of 5, and will never reject
@@ -31,7 +32,9 @@ console.log(somePromise);
 somePromise.then(function(res){
 	console.log('The resolution value is ' + res);
 }); 
-
+somePromise.catch(function(err){
+	console.log(err);
+}); 
 /***
 	5.2 Construct your own Promise
 ***/
