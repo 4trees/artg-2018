@@ -3,20 +3,26 @@ import './style/main.css';
 import './style/stationSearch.css';
 
 //Import utility function
-import { parse, parse2 } from './utils';
+import { parse, parse2, parseStation, fetchCsv } from './utils';
 
 //Import modules
 import Histogram from './components/Histogram';
 import MainViz from './components/mainViz';
+import Animation from './components/Animation';
 
-//if in export(haha) has no 'return this', need to do like this:
-// const activityHistogram = Histogram()
-// activityHistogram.thresholds(d3.range(0, 24, .25))
-// activityHistogram.domain([0,24]);
+//Histogram
+//factory
+const timeline = Histogram()
+    .domain([new Date(2013, 0, 1), new Date(2013, 11, 31)])
+    .value(d => d.t0)
+    .thresholds(d3.timeMonth.range(new Date(2013, 0, 1), new Date(2013, 11, 31), 1))
+    .tickXFormat(d => {
+        return (new Date(d)).toUTCString();
+    })
+    .tickX(2);
 
-//if has 'return this', simply do this
 const activityHistogram = Histogram()
-    .thresholds(d3.range(0, 24, .25))
+    .thresholds(d3.range(0, 24, .5))
     .domain([0, 24])
     .value(d => d.time_of_day0)
     .tickXFormat(d => {
@@ -26,31 +32,33 @@ const activityHistogram = Histogram()
         min = String(min).length === 1 ? "0" + min : min;
         return `${hour}:${min}`
     })
-    .maxY(6000)
+    .maxY(1000);
 
-const timeline = Histogram()
-	.domain([new Date(2013,0,1), new Date(2013, 11,31)])
-	.thresholds(d3.timeMonth.range(new Date(2013,0,1),new Date(2013,11,13),1))
-	.value(d => d.t0)
-	.tickXFormat(d => {
-		return new Date(d).toUTCString();
-	})
-	.tickX(1)
+const mainViz = MainViz(); //a closure
+const animation = Animation(document.querySelector('.main'))
+// fetchCsv('./data/hubway_trips_reduced.csv', parse) // return a promise
+// 	.then((resolveValue) => {})
 
-const mainViz = MainViz()
-
-d3.csv('./data/hubway_trips_reduced.csv', parse, (err, trips) => {
+//Import data using the Promise interface
+//promise.race: get the only fastest one
+Promise.all([
+    fetchCsv('./data/hubway_trips_reduced.csv', parse),
+    fetchCsv('./data/hubway_stations.csv', parseStation)
+]).then(([trips, stations]) => {
 
     d3.select('#time-of-the-day-main')
         .datum(trips)
         .each(activityHistogram);
 
     d3.select('#timeline-main')
-    	.datum(trips)
-    	.each(timeline)
+        .datum(trips)
+        .each(timeline);
 
-    d3.select('.main')
-    	.datum(trips)
-    	.each(mainViz)
+    //We will not draw mainViz for now
+    // d3.select('.main')
+    // 	.datum(trips)
+    // 	.each(mainViz);
+    //above, exports(data, index), we only can get one data
+    animation(trips, stations) // we can have two data as argument in exports fuction
 
 });

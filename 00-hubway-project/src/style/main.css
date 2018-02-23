@@ -18,8 +18,7 @@ body,text{
 html,body{
 	width:100%;
 	height:100%;
-	/*background:rgb(0,50,255);*/
-	background: #999;
+	background:rgb(0,50,255);
 }
 .app{
 	width:100%;
