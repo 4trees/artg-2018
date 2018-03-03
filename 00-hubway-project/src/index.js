@@ -78,3 +78,12 @@ Promise.all([
 		animation(trips, stations);
 
 	});
+
+
+function someFunc(){
+	console.log(this)
+}
+
+someFunc()//it will not give you 'this'
+someFunc.call('I am a custom context') //it set the context as 'I am...'
+someFunc.apply()
