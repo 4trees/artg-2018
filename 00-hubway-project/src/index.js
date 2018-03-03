@@ -86,4 +86,8 @@ function someFunc(){
 
 someFunc()//it will not give you 'this'
 someFunc.call('I am a custom context') //it set the context as 'I am...'
-someFunc.apply()
+someFunc.call('I am a custom context',ar1,ar2)
+someFunc.apply('this',[argumentArray, optional])
+
+someFunc.bind('cumston context')//set 'this' first
+someFunc(ar1,ar2)//invoke function later
