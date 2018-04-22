@@ -99,6 +99,8 @@ d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
 	Does Array.prototype.slice create a new array, or modify existing arrays in place? 
 	YOUR CODE HERE:
 	***/
+	const registeredTrips_new = registeredTrips.slice(0);
+	console.log(registeredTrips_new === registeredTrips)//if false, .slice does create a new array. But when change any value of objects inside the array, will modify the original array's objects.
 
 
 	/**

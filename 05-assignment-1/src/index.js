@@ -21,8 +21,8 @@ const somePromise = new Promise(function(resolve, reject){
 	//Code here will run immediately
 	//How do we change the "resolved" value?
 	/*** YOUR CODE HERE ***/
-	// resolve(5);
-	reject(new Error('some'))
+	resolve(5);
+	// reject(new Error('some'))
 	/*** YOUR CODE HERE ***/
 
 }); //Note that this Promise will resolve a value of 5, and will never reject
@@ -41,7 +41,7 @@ somePromise.catch(function(err){
 //Construct a Promise object that immediate resolves a string "Hello world"
 
 /*** YOUR CODE HERE ***/
-
+Promise.resolve("Hello world").then(str => console.log(str));
 
 
 /*** YOUR CODE HERE ***/
@@ -57,7 +57,8 @@ const rejectHelloWorld = Promise.reject(new Error("Hello world"));
 //How do you access the resolved "Hello world" and rejected error from above? Please console.log them out
 
 /*** YOUR CODE HERE ***/
-
+resolveHelloWorld.then(val => console.log(val));
+rejectHelloWorld.then(val => console.log(val));
 
 
 /*** YOUR CODE HERE ***/

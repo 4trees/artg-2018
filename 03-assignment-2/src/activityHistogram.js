@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 export default function activityHistogram(data){
 
 	//Need to append a the proper DOM scaffolding
-	const width = this.clientWidth; //What is "this"?
+	const width = this.clientWidth; //What is "this"? the DOM element called this function
 	const height = this.clientHeight;
 	const margin = {t:15,r:25,b:25,l:25};
 	const w = width - margin.l - margin.r;
@@ -11,7 +11,7 @@ export default function activityHistogram(data){
 
 	const svg = d3.select(this)
 		.selectAll('svg')
-		.data([1]); //What's going on here?
+		.data([1]); //What's going on here? Bind the data to DOM, which will create one svg
 	const svgEnter = svg.enter().append('svg')
 		.attr('width',width)
 		.attr('height',height);

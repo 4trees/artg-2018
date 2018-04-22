@@ -27,6 +27,6 @@ d3.csv('./data/hubway_trips_reduced.csv', parse, function(err,trips){
 		.style('height','180px')
 		.style('float','left');
 	stationNodes.merge(stationNodesEnter)
-		.each(activityHistogram); //What arguments are we passing to activityHistogram?
+		.each(activityHistogram); //What arguments are we passing to activityHistogram? the bounded data and DOM
 
 });
