@@ -11,6 +11,9 @@ function Histogram(_){
 	let _tickY = 5;
 	let _tickXFormat = d => d;
 	let _maxY = -Infinity;
+	const _dispatch = d3.dispatch('mousemove:x')
+
+	//Internal event dispatch
 
 	function exports(data,i){
 		const root = this;
@@ -113,6 +116,46 @@ function Histogram(_){
 			.attr('class','axis axis-y');
 		axisYNode.merge(axisYNodeEnter)
 			.call(axisY);
+
+		//Mouse indicator
+		let mouseIndicator = plot
+			.selectAll('.mouse-indicator')
+			.data([1]);
+		mouseIndicator = mouseIndicator.enter()
+			.append('line')
+			.attr('class','mouse-indicator')
+			.merge(mouseIndicator)
+			.style('stroke-width','1px')
+			.style('stroke','rgba(255,255,255,.5)');
+
+		//Mouse target
+		let mouseTarget = plot
+			.selectAll('.mouse-target')
+			.data([1]);
+		mouseTarget = mouseTarget.enter()
+			.append('rect')
+			.attr('class','mouse-target')
+			.merge(mouseTarget)
+			.attr('width',w)
+			.attr('height',h)
+			.style('fill-opacity',.01)
+			.on('mousemove', function(){
+				const [x,y] = d3.mouse(this);
+				mouseIndicator
+					.attr('x1',x)
+					.attr('x2',x)
+					.attr('y1',h)
+					.attr('y2',y);
+				_dispatch.call('mousemove:x',null,scaleX.invert(x))
+			})
+			.on('mouseleave', () => {
+				mouseIndicator
+					.attr('x1',0)
+					.attr('x2',0)
+					.attr('y1',0)
+					.attr('y2',0);
+			})
+
 	}
 
 	//Getter/setter
@@ -162,8 +205,35 @@ function Histogram(_){
 		_maxY = _;
 		return this;
 	}
-
+	exports.on = function(eventType, callback){
+		_dispatch.on(eventType,callback)
+		return this
+	}
 	return exports;
 }
 
+//Default export (only one per module .js file)
 export default Histogram;
+
+//Named export (multiples allowed)
+export const timeline = Histogram()
+	.domain([new Date(2013,0,1), new Date(2013,11,31)])
+	.value(d => d.t0)
+	.thresholds(d3.timeMonth.range(new Date(2013,0,1), new Date(2013,11,31), 1))
+	.tickXFormat(d => {
+		return (new Date(d)).toUTCString();
+	})
+	.tickX(2);
+
+export const activityHistogram = Histogram()
+	.thresholds(d3.range(0,24,.5))
+	.domain([0,24])
+	.value(d => d.time_of_day0)
+	.tickXFormat(d => {
+		const time = +d;
+		const hour = Math.floor(time);
+		let min = Math.round((time-hour)*60);
+		min = String(min).length === 1? "0"+ min : min;
+		return `${hour}:${min}`
+	})
+	.maxY(1000);

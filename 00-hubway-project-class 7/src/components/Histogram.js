@@ -14,7 +14,7 @@ function Histogram(_){
 
 	function exports(data,i){
 		const root = this;
-
+		console.log(data)
 		const width = root.clientWidth; 
 		const height = root.clientHeight;
 		const margin = {t:20,r:20,b:20,l:30};
